@@ -31,10 +31,10 @@ define(function(require, exports, module) {
   var pauseSize = Math.floor(size / 5);
   var pause = new ImageSurface({
     size: [pauseSize, pauseSize],
-    content: '<div class="pause"><i class="fa fa-play"></i></div>'
+    content: '<div class="twitter-share-button"><a href="https://twitter.com/share" target="_blank" data-lang="en">Tweet</a></div><div class="pause"><i class="fa fa-play"></i></div>'
   });
   var bottomRight = new Modifier({
-    origin: [0.98, 0.95]
+    origin: [0.98, 0.90]
   });
   var pause3 = new Modifier({
     transform: [1, 0.1, 0, 0,
@@ -221,6 +221,7 @@ define(function(require, exports, module) {
   });
 
   function distance(v1, v2) {
+    console.log(v1, v2);
     var sum = _.reduce(_.zip(v1, v2), function(sum, xs) {
       return Math.pow(xs[0] - xs[1], 2);
     }, 0);
@@ -253,6 +254,8 @@ define(function(require, exports, module) {
     var el = elements[Math.floor(numElements / 2)];
     var id = $('[data-index=' + el.i + ']')[0].id;
     console.log(soundId, id);
+
+    $('.twitter-share-button a').attr('href', 'https://twitter.com/share?url=https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/'+id+'&amp;color=ff6600&amp;auto_play=false&amp;show_artwork=true');
     if (soundId == id && playing) {
       console.log('pause');
       sound.stop();

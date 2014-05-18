@@ -2,7 +2,27 @@
 html {
   background: #222;
 }
-
+.twitter-share-button {
+  background: #fff;
+  display: inline-block;
+  float: right;
+  border-radius: 2px;
+  opacity: 0.4;
+}
+.twitter-share-button:hover {
+  opacity: 0.7;
+}
+.twitter-share-button a {
+  display: block;
+  padding: 2px 5px 2px 10px;
+  background: url('https://twitter.com/favicons/favicon.ico') 1px center no-repeat;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  font-size: 12px;
+  text-decoration: none;
+  font-family: 'Ubuntu';
+  color: #000;
+}
 .pane {
   background: #fff;
   height: 100%;
