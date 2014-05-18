@@ -129,6 +129,11 @@ define(function(require, exports, module) {
     });
   }
 
+  function scrollNext() {
+    console.log(1);
+    scrollTo(Math.floor(numElements/2) + 1);
+  }
+
   window.scrollTo = scrollTo;
   window.pullOut = pullOut;
 
@@ -136,4 +141,17 @@ define(function(require, exports, module) {
     addPane(tree, i);
   }
 
+  var controllerOptions = {enableGestures: true};
+  var scrollNextThrottled = _.throttle(scrollNext, 1600);
+  Leap.loop(controllerOptions, function(frame) {
+    // Body of callback function
+    // Display Gesture object data
+    if (frame.gestures.length > 0) {
+      for(var i=0, l=frame.gestures.length;i<l;i++) {
+        if (frame.gestures[i].type === 'swipe') {
+          scrollNextThrottled();
+        }
+      }
+    }
+  });
 });
