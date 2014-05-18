@@ -147,14 +147,17 @@ define(function(require, exports, module) {
 
   var lastScrollId = null;
 
-  function scrollNext(gesture, frame) {
-    //console.log('scroll next')
-    if (lastScrollId === gesture.id) {
-      return;
+  function scrollNext(gesture, forward) {
+    if (typeof forward === 'undefined') {
+      //console.log('scroll next')
+      if (lastScrollId === gesture.id) {
+        return;
+      }
+      lastScrollId = gesture.id;
+      //console.log(frame);
+      forward = gesture.direction[2] >= 0;
     }
-    lastScrollId = gesture.id;
-    //console.log(frame);
-    var forward = gesture.direction[2] >= 0;
+
     scrollTo(Math.floor(numElements / 2) + (forward ? 1 : -1));
   }
 
@@ -194,8 +197,24 @@ define(function(require, exports, module) {
       for (var i = 0; i < d.length; i++) {
         addPane(tree, i, d[i]);
       }
-    })
-  })
+    });
+
+    $(window).bind('keydown', function (e) {
+      var k = e.keyCode;
+      if (k === 39 || k ===38) {
+        scrollNext(null, true);
+      }
+      if(k === 37 || k ===40) {
+        scrollNext(null, false);
+      }
+      if(k===32) {
+        pullOut();
+      }
+      if (k===80) {
+        play();
+      }
+    });
+  });
 
   function distance(v1, v2) {
     var sum = _.reduce(_.zip(v1, v2), function(sum, xs) {
@@ -250,9 +269,9 @@ define(function(require, exports, module) {
       for (var i = 0, l = frame.gestures.length; i < l; i++) {
         var gesture = frame.gestures[i];
         if (gesture.type === 'swipe') {
-          scrollNextThrottled(gesture, frame);
+          scrollNextThrottled(gesture);
         } else if (gesture.type === 'screenTap') {
-          playThrottled(gesture);
+          playThrottled();
         }
         /*else if (gesture.type === 'keyTap') {
           pullOutThrottled(gesture);
