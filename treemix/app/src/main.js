@@ -98,17 +98,17 @@ define(function(require, exports, module) {
       velocity: 0,
       duration: 200
   };*/
-  /*var transition = {
-      method: "spring",
-      period: 200,
-      dampingRatio: 0.7,
-      velocity: 0,
-      duration: 200
-  };*/
   var transition = {
-    duration: 500,
-    curve: Easing.outQuad
+    method: "spring",
+    period: 500,
+    dampingRatio: 0.5,
+    velocity: 0,
+    duration: 500
   };
+  // var transition = {
+  //   duration: 500,
+  //   curve: Easing.outQuad
+  // };
 
   function scrollTo(index) {
     isPulledOut = false;
@@ -199,18 +199,18 @@ define(function(require, exports, module) {
       }
     });
 
-    $(window).bind('keydown', function (e) {
+    $(window).bind('keydown', function(e) {
       var k = e.keyCode;
-      if (k === 39 || k ===38) {
+      if (k === 39 || k === 38) {
         scrollNext(null, true);
       }
-      if(k === 37 || k ===40) {
+      if (k === 37 || k === 40) {
         scrollNext(null, false);
       }
-      if(k===32) {
+      if (k === 32) {
         pullOut();
       }
-      if (k===80) {
+      if (k === 80) {
         play();
       }
     });
