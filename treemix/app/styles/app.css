@@ -1,0 +1,16 @@
+html {
+  background: #fff;
+}
+
+.pane {
+  background: #999;
+  height: 100%;
+  box-shadow: 3px -3px 5px #222;
+}
+.green {
+  background: green;
+}
+.backfaceVisibility {
+  -webkit-backface-visibility: visible;
+  backface-visibility: visible;
+}
