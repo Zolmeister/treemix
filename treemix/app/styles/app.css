@@ -18,17 +18,28 @@ html {
 	background-image: linear-gradient(to bottom, #444, rgba(0,0,0,0.0) 30%);
 	opacity: 0.8;
 }
-.pane h3 {
+.pane-title-wrapper {
+  text-align: center;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  padding: 0 15%;
+  box-sizing: border-box;
+}
+.pane-title {
   margin: 0px 10px 0 0;
   font-family: 'Ubuntu';
-  position: absolute;
   color: #fff;
-  right: 0;
-  text-align: right;
-  background: rgba(0,0,0,0.8);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  background: rgba(0,0,0,.8);
+  font-size: 16px;
   border-radius: 0px 0px 25% 25%;
   padding: 5px 10px 15px;
-  box-shadow: inset -1px -1px 2px rgba(255,255,255,0.7);
+  box-shadow: inset -1px -1px 1px rgba(255,255,255,0.5);
 }
 .pane h3.selected {
   margin-left: 100px;

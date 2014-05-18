@@ -72,7 +72,7 @@ define(function(require, exports, module) {
       i: index,
       pane: new ImageSurface({
         size: [size, size],
-        content: '<div class="pane" id="' + obj.soundcloudId + '"><h3>' + obj.name + '</h3> <img src=' + obj.artwork_url + '/></div>'
+        content: '<div class="pane" data-index="' + index + '" id="' + obj.soundcloudId + '"><div class="pane-title-wrapper"><h3 class="pane-title">' + obj.name + '</h3></div><img src=' + obj.artwork_url + '/></div>'
       }),
       offsets: getOffsets(index),
       modifier: null,
@@ -245,27 +245,46 @@ define(function(require, exports, module) {
   }
 
   var playing = false;
-  var sound;
+  var sound = {},
+    soundId;
 
   function play() {
-    console.log(sound.id, $('.pane')[Math.floor(numElements / 2)]);
-    if (sound) {
+    var el = elements[Math.floor(numElements / 2)];
+    var id = $('[data-index=' + el.i + ']')[0].id;
+    console.log(soundId, id);
+    if (soundId == id && playing) {
       console.log('pause');
       sound.stop();
-      SC.stream("/tracks/" + $('.pane')[Math.floor(numElements / 2)].id, function(s) {
+      playing = false;
+      $('.pause').html('<i class="fa fa-play"></i>');
+
+
+    } else if (soundId == id && !playing) {
+      sound.play();
+      playing = true;
+      $('.pause').html('<i class="fa fa-pause"></i>');
+
+    } else if (sound.sID) {
+      console.log('pause');
+      sound.stop();
+      SC.stream("/tracks/" + id, function(s) {
         sound = s;
+        soundId = id;
         s.play();
       });
-      $('.pause').html('<i class="fa fa-play"></i>');
+      $('.pause').html('<i class="fa fa-pause"></i>');
       playing = true;
     } else {
       console.log('play');
 
-      SC.stream("/tracks/" + $('.pane')[Math.floor(numElements / 2)].id, function(s) {
+      SC.stream("/tracks/" + id, function(s) {
         sound = s;
+        soundId = id;
         s.play();
       });
       $('.pause').html('<i class="fa fa-pause"></i>');
+      playing = true;
+
     }
   }
 
