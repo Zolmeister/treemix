@@ -7,27 +7,15 @@ define(function(require, exports, module) {
   var Transform = require('famous/core/Transform');
   var ImageSurface = require('famous/core/Surface');
   var Matrix = require('famous/math/Matrix');
+  var Transitionable = require("famous/transitions/Transitionable");
+  var SpringTransition = require("famous/transitions/SpringTransition");
+  var TransitionableTransform = require("famous/transitions/TransitionableTransform");
+  var SnapTransition = require("famous/transitions/SnapTransition");
+  var Easing = require("famous/transitions/Easing");
 
   // create the main context
   var mainContext = Engine.createContext();
-  var size = window.innerHeight / 1.3
-  console.log(size);
-  // your app here
-  var s1 = new ImageSurface({
-    size: [size, size],
-    content: '<iframe class="pane" width="100%" height="100%" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/149019383&amp;auto_play=false&amp;hide_related=false&amp;visual=true"></iframe>',
-    classes: ['backfaceVisibility']
-  });
-  var s2 = new ImageSurface({
-    size: [size, size],
-    content: '<iframe class="pane" width="100%" height="100%" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/150030882&amp;auto_play=false&amp;hide_related=false&amp;visual=true"></iframe>',
-    classes: ['backfaceVisibility']
-  });
-  var s3 = new ImageSurface({
-    size: [size, size],
-    content: '<iframe class="pane" width="100%" height="100%" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/149137994&amp;auto_play=false&amp;hide_related=false&amp;visual=true"></iframe>',
-    classes: ['backfaceVisibility']
-  });
+  var size = window.innerHeight / 1.5;
 
   var three = new Modifier({
     transform: [1, 0.3, 0, 0,
@@ -41,56 +29,205 @@ define(function(require, exports, module) {
   });
 
   var tree = mainContext.add(centerPositionModifier).add(three);
+  var numElements = 30;
+  var elYOffset = 80;
+  var elXOffset = -85;
+  var elements = [];
+
+  function getOffsets(index) {
+    index = index - Math.floor(numElements / 2);
+
+    return {
+      x: elXOffset * index,
+      y: elYOffset * index,
+      z: index
+    };
+  }
 
   function addPane(tree, index) {
-    var pane = new ImageSurface({
-      size: [size, size],
-      content: '<div class="pane">' + i + '</div>',
-      classes: ['backfaceVisibility']
+    var el = {
+      i: index,
+      pane: new ImageSurface({
+        size: [size, size],
+        content: '<div class="pane"></div>'
+      }),
+      offsets: getOffsets(index),
+      modifier: null,
+      transform: new TransitionableTransform()
+    };
+
+    el.transform.set(Transform.translate(el.offsets.x, el.offsets.y, el.offsets.z));
+
+    el.modifier = new Modifier({
+      transform: el.transform
     });
 
-    var offsetX = !index ? size : -55 * index;
-    var offsetY = 50 * index;
-    var offset = new Modifier({
-      transform: function() {
-        return Transform.translate(offsetX, offsetY, 0);
-      }
-    });
-
-    tree.add(offset).add(pane);
+    elements.push(el);
+    tree.add(el.modifier).add(el.pane);
   }
 
-  for (var i = -15; i < 15; i++) {
+  Transitionable.registerMethod('spring', SpringTransition);
+  Transitionable.registerMethod('snap', SnapTransition);
+  /*var transition = {
+      method: "snap",
+      period: 200,
+      dampingRatio: 0.9,
+      velocity: 0,
+      duration: 200
+  };*/
+  /*var transition = {
+      method: "spring",
+      period: 200,
+      dampingRatio: 0.7,
+      velocity: 0,
+      duration: 200
+  };*/
+  var transition = {
+    duration: 500,
+    curve: Easing.outQuad
+  };
+
+  function scrollTo(index) {
+    isPulledOut = false;
+    var center = Math.floor(numElements / 2);
+
+    while (index < center) {
+      elements.push(elements.shift());
+      index += 1;
+    }
+
+    while (index > center) {
+      elements.unshift(elements.pop());
+      index -= 1;
+    }
+
+    _.each(elements, function(el, index) {
+      var newOffsets = getOffsets(index);
+
+      // if moving to back of the line, don't animate
+      if (Math.abs(newOffsets.y - el.offsets.y) >
+        elYOffset * Math.floor(numElements / 2)) {
+        el.offsets = newOffsets;
+        el.transform.set(
+          Transform.translate(el.offsets.x, el.offsets.y, el.offsets.z), {
+            duration: 0
+          });
+        return;
+      }
+
+      el.offsets = newOffsets;
+      el.transform.set(
+        Transform.translate(el.offsets.x, el.offsets.y, el.offsets.z),
+        transition);
+    });
+  }
+
+  var lastScrollId = null;
+
+  function scrollNext(gesture, frame) {
+    //console.log('scroll next')
+    if (lastScrollId === gesture.id) {
+      return;
+    }
+    lastScrollId = gesture.id;
+    //console.log(frame);
+    var forward = gesture.direction[2] >= 0;
+    scrollTo(Math.floor(numElements / 2) + (forward ? 1 : -1));
+  }
+
+  //var lastPullOutId = null
+  var isPulledOut = false;
+
+  function pullOut(gesture) {
+    /*if (lastPullOutId === gesture.id) {
+      return;
+    }
+    lastPullOutId = gesture.id;*/
+
+    if (isPulledOut) {
+      return scrollTo(Math.floor(numElements / 2));
+    }
+
+    isPulledOut = true;
+    var el = elements[Math.floor(numElements / 2)];
+    el.transform.set(
+      Transform.translate(size, el.offsets.y, el.offsets.z),
+      transition);
+  }
+
+  window.scrollTo = scrollTo;
+  window.pullOut = pullOut;
+
+  for (var i = 0; i < numElements; i++) {
     addPane(tree, i);
   }
-  /*
-    tree.add(s1);
-    tree.add(offset).add(s2);
-    tree.add(offset2).add(s3);*/
 
-  var initialTime = Date.now();
-  var centerSpinModifier = new Modifier({
-    origin: [0.5, 0.5],
-    transform: function() {
-      return Transform.rotateY(0.002 * (Date.now() - initialTime));
+  function distance(v1, v2) {
+    var sum = _.reduce(_.zip(v1, v2), function(sum, xs) {
+      return Math.pow(xs[0] - xs[1], 2);
+    }, 0);
+    return Math.sqrt(sum);
+  }
+
+  var nameMap = ['thumb', 'index', 'middle', 'ring', 'pinky'];
+
+  function isPinch(fingers) {
+
+    var thumb = _.find(fingers, function(finger) {
+      return nameMap[finger.type] === 'thumb';
+    });
+    var index = _.find(fingers, function(finger) {
+      return nameMap[finger.type] === 'index';
+    });
+
+    if (!index || !index.tipPosition || !thumb || !thumb.tipPosition) {
+      return false;
+    }
+
+    return distance(index.tipPosition, thumb.tipPosition) < 3;
+  }
+
+  var playing = false;
+
+  function play() {
+    if (playing) {
+      console.log('pause');
+      playing = false;
+    } else {
+      console.log('play');
+      playing = true;
+    }
+  }
+
+  var controllerOptions = {
+    enableGestures: true
+  };
+  var scrollNextThrottled = _.throttle(scrollNext, 1400);
+  var pullOutThrottled = _.throttle(pullOut, 1400);
+  var playThrottled = _.throttle(play, 2000);
+  var pinching = false;
+  Leap.loop(controllerOptions, function(frame) {
+    // Body of callback function
+    // Display Gesture object data
+    if (frame.gestures.length > 0) {
+      for (var i = 0, l = frame.gestures.length; i < l; i++) {
+        var gesture = frame.gestures[i];
+        if (gesture.type === 'swipe') {
+          scrollNextThrottled(gesture, frame);
+        } else if (gesture.type === 'screenTap') {
+          playThrottled(gesture);
+        }
+        /*else if (gesture.type === 'keyTap') {
+          pullOutThrottled(gesture);
+        }*/
+      }
+    }
+
+    if (!pinching && isPinch(frame.fingers)) {
+      pinching = true;
+      pullOutThrottled();
+    } else if (!isPinch(frame.fingers)) {
+      pinching = false;
     }
   });
-
-
-
-  var initial = Date.now();
-  var offset = new Modifier({
-    transform: function() {
-      return Transform.translate(500, 60, 0);
-    }
-  });
-  var offset2 = new Modifier({
-    transform: function() {
-      return Transform.translate(-120, 120, 0);
-      //return Transform.translate(-450, 450, 0);
-    }
-  });
-
-  // .add(centerSpinModifier)
-
 });
