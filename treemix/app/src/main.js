@@ -122,7 +122,7 @@ define(function(require, exports, module) {
   }
 
   var lastScrollId = null;
-  function scrollNext(gesture, frame) {
+  function scrollNext(gesture) {
     //console.log('scroll next')
     if (lastScrollId === gesture.id) {
       return;
@@ -199,6 +199,35 @@ define(function(require, exports, module) {
   var pullOutThrottled = _.throttle(pullOut, 1400);
   var playThrottled = _.throttle(play, 2000);
   var pinching = false;
+
+  window.onkeydown = function (key) {
+    var k = key.keyCode;
+
+    // up, right
+    if (k===38 || k === 39) {
+      scrollNext({
+        id: Math.random(),
+        direction: [0, 0, 1]
+      });
+    }
+    // left, down
+    if (k===40 || k === 37) {
+      scrollNext({
+        id: Math.random(),
+        direction: [0, 0, -1]
+      });
+    }
+    // space
+    if (k===32) {
+      pullOut();
+    }
+    // P
+    if (k===80) {
+      play();
+    }
+  };
+  // 172.31.34.208:3000
+
   Leap.loop(controllerOptions, function(frame) {
     // Body of callback function
     // Display Gesture object data
@@ -206,9 +235,9 @@ define(function(require, exports, module) {
       for(var i=0, l=frame.gestures.length;i<l;i++) {
         var gesture = frame.gestures[i];
         if (gesture.type === 'swipe') {
-          scrollNextThrottled(gesture, frame);
+          scrollNextThrottled(gesture);
         } else if (gesture.type === 'screenTap') {
-          playThrottled(gesture);
+          playThrottled();
         }
         /*else if (gesture.type === 'keyTap') {
           pullOutThrottled(gesture);
