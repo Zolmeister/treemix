@@ -72,7 +72,7 @@ define(function(require, exports, module) {
       i: index,
       pane: new ImageSurface({
         size: [size, size],
-        content: '<div class="pane"><h3>' + obj.name + '</h3> <img src=' + obj.artwork_url + '/></div>'
+        content: '<div class="pane"><div class="pane-title-wrapper"><h3 class="pane-title">' + obj.name + '</h3></div><img src=' + obj.artwork_url + '/></div>'
       }),
       offsets: getOffsets(index),
       modifier: null,
