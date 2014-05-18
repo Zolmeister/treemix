@@ -19,6 +19,13 @@ html {
 	background-image: linear-gradient(to bottom, #444, rgba(0,0,0,0.0) 30%);
 	opacity: 0.8;
 }
+.tracktitle{
+margin: 3.5em -20em;
+color: #fff;
+float: left;
+font-family: ubuntu;
+
+}
 .pane-title-wrapper {
   text-align: center;
   position: absolute;

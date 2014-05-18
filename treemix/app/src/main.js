@@ -31,7 +31,7 @@ define(function(require, exports, module) {
   var pauseSize = Math.floor(size / 5);
   var pause = new ImageSurface({
     size: [pauseSize, pauseSize],
-    content: '<div class="pause"><i class="fa fa-play"></i></div>'
+    content: '<h5 class="tracktitle" id="trackName">Nothing Playing</h5><div class="pause"><i class="fa fa-play"></i></div>'
   });
   var bottomRight = new Modifier({
     origin: [0.98, 0.95]
@@ -72,7 +72,7 @@ define(function(require, exports, module) {
       i: index,
       pane: new ImageSurface({
         size: [size, size],
-        content: '<div class="pane" data-index="' + index + '" id="' + obj.soundcloudId + '"><div class="pane-title-wrapper"><h3 class="pane-title">' + obj.name + '</h3></div><img src=' + obj.artwork_url + '/></div>'
+        content: '<div class="pane" data-index="' + index + '" data-name="' + obj.name + '" id="' + obj.soundcloudId + '"><div class="pane-title-wrapper"><h3 class="pane-title">' + obj.name + '</h3></div><img src=' + obj.artwork_url + '/></div>'
       }),
       offsets: getOffsets(index),
       modifier: null,
@@ -222,9 +222,9 @@ define(function(require, exports, module) {
 
   function distance(v1, v2) {
     var sum = _.reduce(_.zip(v1, v2), function(sum, xs) {
-      return Math.pow(xs[0] - xs[1], 2);
+      return Math.pow(xs[0] + xs[1] + xs[2], 5);
     }, 0);
-    return Math.sqrt(sum);
+    return sum;
   }
 
   var nameMap = ['thumb', 'index', 'middle', 'ring', 'pinky'];
@@ -252,6 +252,9 @@ define(function(require, exports, module) {
   function play() {
     var el = elements[Math.floor(numElements / 2)];
     var id = $('[data-index=' + el.i + ']')[0].id;
+    var name = $('[data-index=' + el.i + ']').data('name');
+    $('.tracktitle').html(name);
+    console.log(name);
     console.log(soundId, id);
     if (soundId == id && playing) {
       console.log('pause');
@@ -292,9 +295,9 @@ define(function(require, exports, module) {
   var controllerOptions = {
     enableGestures: true
   };
-  var scrollNextThrottled = _.throttle(scrollNext, 2000);
+  var scrollNextThrottled = _.throttle(scrollNext, 1500);
   var pullOutThrottled = _.throttle(pullOut, 1500);
-  var playThrottled = _.throttle(play, 4000);
+  var playThrottled = _.throttle(play, 2000);
   var pinching = false;
   Leap.loop(controllerOptions, function(frame) {
     // Body of callback function
