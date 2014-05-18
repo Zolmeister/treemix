@@ -15,7 +15,7 @@ define(function(require, exports, module) {
 
   // create the main context
   var mainContext = Engine.createContext();
-  var size = window.innerHeight / 1.5;
+  var size = Math.floor(window.innerHeight / 1.5);
 
   var three = new Modifier({
     transform: [1, 0.3, 0, 0,
@@ -28,6 +28,22 @@ define(function(require, exports, module) {
     origin: [0.3, 0]
   });
 
+  var pause = new ImageSurface({
+    size: [~~size/1.6, ~~size/1.6],
+    content: '<div class="pause"><i class="fa fa-play"></i></div>'
+  });
+  var bottomRight = new Modifier({
+    origin: [1, 0.85]
+  });
+  mainContext.add(bottomRight).add(pause);
+
+  console.log(mainContext);
+  setTimeout(function () {
+    $('.pause').show();
+    $('.pause').css({
+      fontSize: ~~size / 1.4
+    });
+  }, 100);
   var tree = mainContext.add(centerPositionModifier).add(three);
   var numElements = 30;
   var elYOffset = 80;
