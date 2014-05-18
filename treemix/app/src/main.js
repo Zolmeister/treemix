@@ -219,9 +219,7 @@ define(function(require, exports, module) {
       }
     });
   });
-
   function distance(v1, v2) {
-    console.log(v1, v2);
     var sum = _.reduce(_.zip(v1, v2), function(sum, xs) {
       return Math.pow(xs[0] - xs[1], 2);
     }, 0);
@@ -230,20 +228,29 @@ define(function(require, exports, module) {
 
   var nameMap = ['thumb', 'index', 'middle', 'ring', 'pinky'];
 
+  var pinchTimes = 0;
   function isPinch(fingers) {
 
     var thumb = _.find(fingers, function(finger) {
       return nameMap[finger.type] === 'thumb';
     });
-    var index = _.find(fingers, function(finger) {
-      return nameMap[finger.type] === 'index';
-    });
 
-    if (!index || !index.tipPosition || !thumb || !thumb.tipPosition) {
+    if (!thumb || !thumb.tipPosition) {
       return false;
     }
+    var distanceTotal = _.reduce(fingers, function(sum, finger2) {
+        return sum + distance(thumb.tipPosition, finger2.tipPosition);
+      }, 0)/fingers.length;
 
-    return distance(index.tipPosition, thumb.tipPosition) < 1;
+    if (distanceTotal < 15) {
+      pinchTimes+=1;
+      if(pinchTimes > 10) {
+        return true;
+      }
+    }else {
+      pinchTimes = 0;
+    }
+    return false;
   }
 
   var playing = false;
@@ -302,7 +309,8 @@ define(function(require, exports, module) {
   Leap.loop(controllerOptions, function(frame) {
     // Body of callback function
     // Display Gesture object data
-    if (frame.gestures.length > 0) {
+    var isP = isPinch(frame.fingers);
+    if (!isP && frame.gestures.length > 0) {
       for (var i = 0, l = frame.gestures.length; i < l; i++) {
         var gesture = frame.gestures[i];
         if (gesture.type === 'swipe') {
@@ -314,9 +322,7 @@ define(function(require, exports, module) {
           pullOutThrottled(gesture);
         }*/
       }
-    }
-
-    if (!pinching && isPinch(frame.fingers)) {
+    } else if (!pinching && isP) {
       pinching = true;
       pullOutThrottled();
     } else if (!isPinch(frame.fingers)) {
