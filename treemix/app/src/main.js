@@ -31,10 +31,10 @@ define(function(require, exports, module) {
   var pauseSize = Math.floor(size / 5);
   var pause = new ImageSurface({
     size: [pauseSize, pauseSize],
-    content: '<h5 class="tracktitle" id="trackName">Nothing Playing</h5><div class="pause"><i class="fa fa-play"></i></div>'
+    content: '<div class="pause"><i class="fa fa-play"></i></div><h5 class="tracktitle" id="trackName">Nothing Playing</h5>'
   });
   var bottomRight = new Modifier({
-    origin: [0.98, 0.95]
+    origin: [0.98, 0.93]
   });
   var pause3 = new Modifier({
     transform: [1, 0.1, 0, 0,
@@ -43,7 +43,7 @@ define(function(require, exports, module) {
       0, 0, 0, 1
     ]
   });
-  mainContext.add(bottomRight).add(pause3).add(pause);
+  mainContext.add(bottomRight).add(pause);
 
   setTimeout(function() {
     $('.pause').show();

@@ -20,9 +20,11 @@ html {
 	opacity: 0.8;
 }
 .tracktitle{
-margin: 3.5em -20em;
+margin: 1em -16.5em 0em;
+width: 300px;
 color: #fff;
 float: left;
+text-align: right;
 font-family: ubuntu;
 
 }
