@@ -72,7 +72,7 @@ define(function(require, exports, module) {
       i: index,
       pane: new ImageSurface({
         size: [size, size],
-        content: '<div class="pane"><h3>' + obj.name + '</h3> <img src=' + obj.artwork_url + '/></div>'
+        content: '<div class="pane" id="' + obj.soundcloudId + '"><h3>' + obj.name + '</h3> <img src=' + obj.artwork_url + '/></div>'
       }),
       offsets: getOffsets(index),
       modifier: null,
@@ -185,7 +185,10 @@ define(function(require, exports, module) {
   window.pullOut = pullOut;
 
   $(function() {
-
+    SC.initialize({
+      client_id: "20a5b7cf9c33e86431f5148a15ee5a3d",
+      redirect_uri: "http://172.31.34.208:3000/soundcloud"
+    });
     $.ajax({
       method: 'GET',
       url: 'http://172.31.34.208:3000/traverseGraph',
@@ -242,16 +245,27 @@ define(function(require, exports, module) {
   }
 
   var playing = false;
+  var sound;
 
   function play() {
-    if (playing) {
+    console.log(sound.id, $('.pane')[Math.floor(numElements / 2)]);
+    if (sound) {
       console.log('pause');
+      sound.stop();
+      SC.stream("/tracks/" + $('.pane')[Math.floor(numElements / 2)].id, function(s) {
+        sound = s;
+        s.play();
+      });
       $('.pause').html('<i class="fa fa-play"></i>');
-      playing = false;
+      playing = true;
     } else {
       console.log('play');
+
+      SC.stream("/tracks/" + $('.pane')[Math.floor(numElements / 2)].id, function(s) {
+        sound = s;
+        s.play();
+      });
       $('.pause').html('<i class="fa fa-pause"></i>');
-      playing = true;
     }
   }
 
