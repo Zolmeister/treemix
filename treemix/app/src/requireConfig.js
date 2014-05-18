@@ -8,6 +8,9 @@ require.config({
         requirejs: '../lib/requirejs/require',
         almond: '../lib/almond/almond',
         'famous-polyfills': '../lib/famous-polyfills/index'
-    }
+    },
+    packages: [
+
+    ]
 });
 require(['main']);

@@ -30,10 +30,11 @@ define(function(require, exports, module) {
     });
 
     var three = new Modifier({
-        transform:  [1,   0.1, 0, 0,
-                     0.1, 1,    0, 0,
-                     0,    0.1,    1, 0,
-                     0,    0,    0, 1]
+        transform: [1, 0.3, 0, 0,
+            0, 1, 0, 0,
+            0, 0.1, 1, 0,
+            0, 0, 0, 1
+        ]
     });
     var centerPositionModifier = new Modifier({
         origin: [0.3, 0]
@@ -41,26 +42,26 @@ define(function(require, exports, module) {
 
     var tree = mainContext.add(centerPositionModifier).add(three);
 
-    function addPane(tree, index){
-      var pane = new ImageSurface({
-        size: [size, size],
-        content: '<div class="pane"></div>',
-        classes: ['backfaceVisibility']
-    });
+    function addPane(tree, index) {
+        var pane = new ImageSurface({
+            size: [size, size],
+            content: '<div class="pane">' + i + '</div>',
+            classes: ['backfaceVisibility']
+        });
 
-    var offsetX = !index ? size : -30*index;
-    var offsetY = 60*index;
-    var offset = new Modifier({
-        transform: function () {
-          return Transform.translate(offsetX, offsetY, 0);
-        }
-    });
+        var offsetX = !index ? size : -55 * index;
+        var offsetY = 50 * index;
+        var offset = new Modifier({
+            transform: function() {
+                return Transform.translate(offsetX, offsetY, 0);
+            }
+        });
 
-      tree.add(offset).add(pane);
+        tree.add(offset).add(pane);
     }
 
-    for(var i=-15;i<15;i++) {
-      addPane(tree, i);
+    for (var i = -15; i < 15; i++) {
+        addPane(tree, i);
     }
     /*
     tree.add(s1);
@@ -70,24 +71,23 @@ define(function(require, exports, module) {
     var initialTime = Date.now();
     var centerSpinModifier = new Modifier({
         origin: [0.5, 0.5],
-        transform : function() {
+        transform: function() {
             return Transform.rotateY(0.002 * (Date.now() - initialTime));
         }
     });
 
 
 
-
     var initial = Date.now();
     var offset = new Modifier({
-        transform: function () {
-          return Transform.translate(500, 60, 0);
+        transform: function() {
+            return Transform.translate(500, 60, 0);
         }
     });
     var offset2 = new Modifier({
-        transform: function () {
-          return Transform.translate(-120, 120, 0);
-          //return Transform.translate(-450, 450, 0);
+        transform: function() {
+            return Transform.translate(-120, 120, 0);
+            //return Transform.translate(-450, 450, 0);
         }
     });
 
