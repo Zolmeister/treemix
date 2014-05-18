@@ -7,7 +7,6 @@ html {
   height: 100%;
   box-shadow: 3px -3px 5px #222;
   -webkit-box-reflect: below 0px -webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(250, 250, 250, 0.1)));
-  text-align: right;
 }
 .pane:before {
   content: '';
@@ -20,10 +19,19 @@ html {
 	opacity: 0.8;
 }
 .pane h3 {
-  padding: 0px 10px;
+  margin: 0px 10px 0 0;
   font-family: 'Ubuntu';
   position: absolute;
   color: #fff;
+  right: 0;
+  text-align: right;
+  background: rgba(0,0,0,0.8);
+  border-radius: 0px 0px 25% 25%;
+  padding: 5px 10px 15px;
+  box-shadow: inset -1px -1px 2px rgba(255,255,255,0.7);
+}
+.pane h3.selected {
+  margin-left: 100px;
 }
 .pane img {
   width:100%;
