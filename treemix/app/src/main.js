@@ -44,19 +44,12 @@ define(function(require, exports, module) {
     };
   }
 
-  function pullOut() {
-    var el = elements[Math.floor(numElements/2)];
-    el.transform.set(
-            Transform.translate(size, el.offsets.y, el.offsets.z),
-            transition);
-  }
-
   function addPane(tree, index) {
     var el = {
       i: index,
       pane: new ImageSurface({
           size: [size, size],
-          content: '<div class="pane">' + index + '</div>'
+          content: '<div class="pane"></div>'
       }),
       offsets: getOffsets(index),
       modifier: null,
@@ -72,8 +65,6 @@ define(function(require, exports, module) {
     elements.push(el);
     tree.add(el.modifier).add(el.pane);
   }
-
-  var pulledOut = null;
 
   Transitionable.registerMethod('spring', SpringTransition);
   Transitionable.registerMethod('snap', SnapTransition);
@@ -97,6 +88,7 @@ define(function(require, exports, module) {
   };
 
   function scrollTo(index) {
+    isPulledOut = false;
     var center = Math.floor(numElements/2);
 
     while (index < center) {
@@ -129,9 +121,35 @@ define(function(require, exports, module) {
     });
   }
 
-  function scrollNext() {
-    console.log(1);
-    scrollTo(Math.floor(numElements/2) + 1);
+  var lastScrollId = null;
+  function scrollNext(gesture, frame) {
+    //console.log('scroll next')
+    if (lastScrollId === gesture.id) {
+      return;
+    }
+    lastScrollId = gesture.id;
+    //console.log(frame);
+    var forward = gesture.direction[2] >= 0;
+    scrollTo(Math.floor(numElements/2) + (forward ? 1 : -1));
+  }
+
+  //var lastPullOutId = null
+  var isPulledOut = false;
+  function pullOut(gesture) {
+    /*if (lastPullOutId === gesture.id) {
+      return;
+    }
+    lastPullOutId = gesture.id;*/
+
+    if (isPulledOut) {
+      return scrollTo(Math.floor(numElements/2));
+    }
+
+    isPulledOut = true;
+    var el = elements[Math.floor(numElements/2)];
+    el.transform.set(
+            Transform.translate(size, el.offsets.y, el.offsets.z),
+            transition);
   }
 
   window.scrollTo = scrollTo;
@@ -141,17 +159,53 @@ define(function(require, exports, module) {
     addPane(tree, i);
   }
 
+  function distance(v1, v2) {
+    var sum = _.reduce(_.zip(v1, v2), function (sum, xs) {
+      return Math.pow(xs[0] - xs[1], 2);
+    }, 0);
+    return Math.sqrt(sum);
+  }
+
+  var nameMap = ['thumb', 'index', 'middle', 'ring', 'pinky'];
+  function isPinch(fingers) {
+
+    var thumb = _.find(fingers, function (finger) {
+      return nameMap[finger.type] === 'thumb';
+    });
+    var index = _.find(fingers, function (finger) {
+      return nameMap[finger.type] === 'index';
+    });
+
+    if (!index || !index.tipPosition || !thumb || !thumb.tipPosition) {
+      return false;
+    }
+
+    return distance(index.tipPosition, thumb.tipPosition) < 4;
+  }
+
   var controllerOptions = {enableGestures: true};
-  var scrollNextThrottled = _.throttle(scrollNext, 1600);
+  var scrollNextThrottled = _.throttle(scrollNext, 500);
+  var pullOutThrottled = _.throttle(pullOut, 500);
+  var pinching = false;
   Leap.loop(controllerOptions, function(frame) {
     // Body of callback function
     // Display Gesture object data
     if (frame.gestures.length > 0) {
       for(var i=0, l=frame.gestures.length;i<l;i++) {
-        if (frame.gestures[i].type === 'swipe') {
-          scrollNextThrottled();
-        }
+        var gesture = frame.gestures[i];
+        if (gesture.type === 'swipe') {
+          scrollNextThrottled(gesture, frame);
+        } /*else if (gesture.type === 'keyTap') {
+          pullOutThrottled(gesture);
+        }*/
       }
+    }
+
+    if (!pinching && isPinch(frame.fingers)) {
+      pinching = true;
+      pullOutThrottled();
+    } else if (!isPinch(frame.fingers)) {
+      pinching = false;
     }
   });
 });
