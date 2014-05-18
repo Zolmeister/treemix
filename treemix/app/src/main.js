@@ -180,12 +180,24 @@ define(function(require, exports, module) {
       return false;
     }
 
-    return distance(index.tipPosition, thumb.tipPosition) < 4;
+    return distance(index.tipPosition, thumb.tipPosition) < 3;
+  }
+
+  var playing = false;
+  function play() {
+    if (playing) {
+      console.log('pause');
+      playing = false;
+    } else {
+      console.log('play');
+      playing = true;
+    }
   }
 
   var controllerOptions = {enableGestures: true};
-  var scrollNextThrottled = _.throttle(scrollNext, 500);
-  var pullOutThrottled = _.throttle(pullOut, 500);
+  var scrollNextThrottled = _.throttle(scrollNext, 1400);
+  var pullOutThrottled = _.throttle(pullOut, 1400);
+  var playThrottled = _.throttle(play, 2000);
   var pinching = false;
   Leap.loop(controllerOptions, function(frame) {
     // Body of callback function
@@ -195,7 +207,10 @@ define(function(require, exports, module) {
         var gesture = frame.gestures[i];
         if (gesture.type === 'swipe') {
           scrollNextThrottled(gesture, frame);
-        } /*else if (gesture.type === 'keyTap') {
+        } else if (gesture.type === 'screenTap') {
+          playThrottled(gesture);
+        }
+        /*else if (gesture.type === 'keyTap') {
           pullOutThrottled(gesture);
         }*/
       }
