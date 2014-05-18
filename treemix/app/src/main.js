@@ -28,6 +28,29 @@ define(function(require, exports, module) {
     origin: [0.3, 0]
   });
 
+
+  var pause = new ImageSurface({
+    size: [~~size / 3, ~~size / 3],
+    content: '<div class="pause"><i class="fa fa-play"></i></div>'
+  });
+  var bottomRight = new Modifier({
+    origin: [0.9, 0.6]
+  });
+  var pause3 = new Modifier({
+    transform: [1, 0.1, 0, 0,
+      0, 1, 0, 0,
+      0, 0.1, 1, 0,
+      0, 0, 0, 1
+    ]
+  });
+  mainContext.add(bottomRight).add(pause3).add(pause);
+
+  setTimeout(function() {
+    $('.pause').show();
+    $('.pause').css({
+      fontSize: ~~size / 1.4
+    });
+  }, 100);
   var tree = mainContext.add(centerPositionModifier).add(three);
   var numElements = 30;
   var elYOffset = 80;
@@ -204,9 +227,11 @@ define(function(require, exports, module) {
   function play() {
     if (playing) {
       console.log('pause');
+      $('.pause').html('<i class="fa fa-play"></i>');
       playing = false;
     } else {
       console.log('play');
+      $('.pause').html('<i class="fa fa-pause"></i>');
       playing = true;
     }
   }
