@@ -98,17 +98,17 @@ define(function(require, exports, module) {
       velocity: 0,
       duration: 200
   };*/
-  /*var transition = {
+  var transition = {
     method: "spring",
     period: 500,
     dampingRatio: 0.5,
     velocity: 0,
     duration: 500
-  };*/
-  var transition = {
-    duration: 500,
-    curve: Easing.outQuad
   };
+  // var transition = {
+  //   duration: 500,
+  //   curve: Easing.outQuad
+  // };
 
   function scrollTo(index) {
     isPulledOut = false;
