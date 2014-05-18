@@ -28,13 +28,13 @@ define(function(require, exports, module) {
     origin: [0.3, 0]
   });
 
-
+  var pauseSize = Math.floor(size / 5);
   var pause = new ImageSurface({
-    size: [~~size / 3, ~~size / 3],
+    size: [pauseSize, pauseSize],
     content: '<div class="pause"><i class="fa fa-play"></i></div>'
   });
   var bottomRight = new Modifier({
-    origin: [0.9, 0.6]
+    origin: [0.98, 0.95]
   });
   var pause3 = new Modifier({
     transform: [1, 0.1, 0, 0,
@@ -48,7 +48,7 @@ define(function(require, exports, module) {
   setTimeout(function() {
     $('.pause').show();
     $('.pause').css({
-      fontSize: ~~size / 1.6
+      fontSize: pauseSize
     });
   }, 100);
   var tree = mainContext.add(centerPositionModifier).add(three);
