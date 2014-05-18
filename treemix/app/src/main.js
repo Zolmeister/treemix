@@ -44,12 +44,12 @@ define(function(require, exports, module) {
     };
   }
 
-  function addPane(tree, index) {
+  function addPane(tree, index, obj) {
     var el = {
       i: index,
       pane: new ImageSurface({
         size: [size, size],
-        content: '<div class="pane"></div>'
+        content: '<div class="pane"><h3>' + obj.name + '</h3> <img src=' + obj.artwork_url + '/></div>'
       }),
       offsets: getOffsets(index),
       modifier: null,
@@ -158,9 +158,21 @@ define(function(require, exports, module) {
   window.scrollTo = scrollTo;
   window.pullOut = pullOut;
 
-  for (var i = 0; i < numElements; i++) {
-    addPane(tree, i);
-  }
+  $(function() {
+
+    $.ajax({
+      method: 'GET',
+      url: 'http://172.31.34.208:3000/traverseGraph',
+      xhrFields: {
+        withCredentials: true
+      }
+    }).then(function(d) {
+      console.log(d);
+      for (var i = 0; i < d.length; i++) {
+        addPane(tree, i, d[i]);
+      }
+    })
+  })
 
   function distance(v1, v2) {
     var sum = _.reduce(_.zip(v1, v2), function(sum, xs) {

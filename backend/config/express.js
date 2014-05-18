@@ -33,7 +33,7 @@ module.exports.express = {
 		passport.use(new SoundCloudStrategy({
 				clientID: '20a5b7cf9c33e86431f5148a15ee5a3d',
 				clientSecret: '027f2e504f2800de448132e1322498f1',
-				callbackURL: "http://localhost:3000/auth/soundcloud/callback"
+				callbackURL: "http://172.31.34.208:3000/auth/soundcloud/callback"
 			},
 			function(accessToken, refreshToken, profile, done) {
 				User.findOne({

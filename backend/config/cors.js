@@ -2,10 +2,10 @@
  * Cross-Origin Resource Sharing (CORS)
  *
  * CORS is like a more modern version of JSONP-- it allows your server/API
- * to successfully respond to requests from client-side JavaScript code 
+ * to successfully respond to requests from client-side JavaScript code
  * running on some other domain (e.g. google.com)
  * Unlike JSONP, it works with POST, PUT, and DELETE requests
- * 
+ *
  * For more information on CORS, check out:
  * http://en.wikipedia.org/wiki/Cross-origin_resource_sharing
  *
@@ -16,10 +16,10 @@
  *   controller: 'foo',
  *   action: 'bar',
  *   cors: {
- *     origin: 'http://foobar.com,https://owlhoot.com'	
+ *     origin: 'http://foobar.com,https://owlhoot.com'
  *   }
  *  }
- * 
+ *
  */
 
 module.exports.cors = {
@@ -28,7 +28,7 @@ module.exports.cors = {
 	// per-route basis by either adding a "cors" configuration object
 	// to the route config, or setting "cors:true" in the route config to
 	// use the default settings below.
-	allRoutes: false,
+	allRoutes: true,
 
 	// Which domains which are allowed CORS access?
 	// This can be a comma-delimited list of hosts (beginning with http:// or https://)
