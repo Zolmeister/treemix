@@ -3,10 +3,13 @@ html {
 }
 
 .pane {
-  background: #999;
+  background: #fff;
   height: 100%;
   box-shadow: 3px -3px 5px #222;
   -webkit-box-reflect: below 0px -webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(250, 250, 250, 0.1)));
+}
+.pane h3 {
+  padding:10px;
 }
 .pane img {
   width:100%;
