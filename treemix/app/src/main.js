@@ -197,6 +197,7 @@ define(function(require, exports, module) {
       }
     }).then(function(d) {
       console.log(d);
+      d = _.shuffle(d);
       for (var i = 0; i < d.length; i++) {
         addPane(tree, i, d[i]);
       }
@@ -241,7 +242,7 @@ define(function(require, exports, module) {
       return false;
     }
 
-    return distance(index.tipPosition, thumb.tipPosition) < 3;
+    return distance(index.tipPosition, thumb.tipPosition) < 1;
   }
 
   var playing = false;
@@ -291,9 +292,9 @@ define(function(require, exports, module) {
   var controllerOptions = {
     enableGestures: true
   };
-  var scrollNextThrottled = _.throttle(scrollNext, 1400);
-  var pullOutThrottled = _.throttle(pullOut, 1400);
-  var playThrottled = _.throttle(play, 2000);
+  var scrollNextThrottled = _.throttle(scrollNext, 2000);
+  var pullOutThrottled = _.throttle(pullOut, 1500);
+  var playThrottled = _.throttle(play, 4000);
   var pinching = false;
   Leap.loop(controllerOptions, function(frame) {
     // Body of callback function
