@@ -135,7 +135,7 @@ function addNodeAndRelationship(root, nodeData, relationship) {
 
 function traverseGraph(startNode) {
 	var deferred = Q.defer();
-	db.cypherQuery("START user = node(" + startNode + ") MATCH user - [:Follows] -(m)- [:Likes] - (songs)WHERE NOT (user)-->(songs) and (songs.favoritings_count > 0) return songs.name, songs.waveform_url, songs.soundcloudId, songs.artwork_url, (count(songs) * (songs.favoritings_count*songs.favoritings_count)) AS common_cnt ORDER BY common_cnt desc limit 30;", function(err, result) {
+	db.cypherQuery("START user = node(" + startNode + ") MATCH user - [:Follows] -(m)- [:Likes] - (songs)WHERE NOT (user)-->(songs) and (songs.favoritings_count > 0) return songs.name, songs.waveform_url, songs.soundcloudId, songs.artwork_url, (count(songs) * (songs.favoritings_count*songs.favoritings_count)) AS common_cnt ORDER BY common_cnt desc limit 50;", function(err, result) {
 		if (err) throw err;
 		deferred.resolve(_.map(result.data, function(d) {
 			var object = _.object(['name', 'waveform_url', 'soundcloudId', 'artwork_url'], d);

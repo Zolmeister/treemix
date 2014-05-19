@@ -15,17 +15,17 @@ define(function(require, exports, module) {
 
   // create the main context
   var mainContext = Engine.createContext();
-  var size = window.innerHeight / 1.5;
+  var size = Math.floor(window.innerHeight / 2.75);
 
   var three = new Modifier({
-    transform: [1, 0.3, 0, 0,
+    transform: [1, 0.35, 0, 0,
       0, 1, 0, 0,
       0, 0.1, 1, 0,
       0, 0, 0, 1
     ]
   });
   var centerPositionModifier = new Modifier({
-    origin: [0.3, 0]
+    origin: [0.5, 0.2]
   });
 
   var pauseSize = Math.floor(size / 5);
@@ -34,7 +34,8 @@ define(function(require, exports, module) {
     content: '<div class="pause"><i class="fa fa-play"></i></div><h5 class="tracktitle" id="trackName">Nothing Playing</h5>'
   });
   var bottomRight = new Modifier({
-    origin: [0.98, 0.93]
+    origin: [0.98, 0.90]
+
   });
   var pause3 = new Modifier({
     transform: [1, 0.1, 0, 0,
@@ -52,9 +53,9 @@ define(function(require, exports, module) {
     });
   }, 100);
   var tree = mainContext.add(centerPositionModifier).add(three);
-  var numElements = 30;
-  var elYOffset = 80;
-  var elXOffset = -85;
+  var numElements = 50;
+  var elYOffset = 60;
+  var elXOffset = -65;
   var elements = [];
 
   function getOffsets(index) {
@@ -100,13 +101,15 @@ define(function(require, exports, module) {
   };*/
   var transition = {
     method: "spring",
-    period: 500,
-    dampingRatio: 0.5,
+    period: 700,
+    dampingRatio: 0.9,
     velocity: 0,
-    duration: 500
+    duration: 100
   };
   // var transition = {
   //   duration: 500,
+  //   period: 400,
+  // //   dampingRatio: 0.8,
   //   curve: Easing.outQuad
   // };
 
@@ -155,16 +158,20 @@ define(function(require, exports, module) {
       }
       lastScrollId = gesture.id;
       //console.log(frame);
-      forward = gesture.direction[2] >= 0;
+      if (Math.abs(gesture.direction[2]) > Math.abs(0.3)) {
+        forward = Math.round(gesture.direction[2] * 5);
+        console.log(forward);
+      };
+
     }
 
-    scrollTo(Math.floor(numElements / 2) + (forward ? 1 : -1));
+    scrollTo(Math.floor(numElements / 2) + (forward));
   }
 
   //var lastPullOutId = null
   var isPulledOut = false;
 
-  function pullOut(gesture) {
+  function pullOut(key) {
     /*if (lastPullOutId === gesture.id) {
       return;
     }
@@ -179,6 +186,7 @@ define(function(require, exports, module) {
     el.transform.set(
       Transform.translate(size, el.offsets.y, el.offsets.z),
       transition);
+    play();
   }
 
   window.scrollTo = scrollTo;
@@ -187,11 +195,11 @@ define(function(require, exports, module) {
   $(function() {
     SC.initialize({
       client_id: "20a5b7cf9c33e86431f5148a15ee5a3d",
-      redirect_uri: "http://172.31.34.208:3000/soundcloud"
+      redirect_uri: "http://localhost:3000/soundcloud"
     });
     $.ajax({
       method: 'GET',
-      url: 'http://172.31.34.208:3000/traverseGraph',
+      url: 'http://localhost:3000/traverseGraph',
       xhrFields: {
         withCredentials: true
       }
@@ -222,40 +230,51 @@ define(function(require, exports, module) {
 
   function distance(v1, v2) {
     var sum = _.reduce(_.zip(v1, v2), function(sum, xs) {
-      return Math.pow(xs[0] + xs[1] + xs[2], 5);
+      return sum + Math.pow(xs[0] - xs[1], 2);
     }, 0);
-    return sum;
+    return Math.sqrt(sum);
   }
 
   var nameMap = ['thumb', 'index', 'middle', 'ring', 'pinky'];
+
+  var pinchTimes = 0;
 
   function isPinch(fingers) {
 
     var thumb = _.find(fingers, function(finger) {
       return nameMap[finger.type] === 'thumb';
     });
-    var index = _.find(fingers, function(finger) {
-      return nameMap[finger.type] === 'index';
-    });
 
-    if (!index || !index.tipPosition || !thumb || !thumb.tipPosition) {
+    if (!thumb || !thumb.tipPosition) {
       return false;
     }
-
-    return distance(index.tipPosition, thumb.tipPosition) < 1;
+    var distanceTotal = _.reduce(fingers, function(sum, finger2) {
+      return sum + distance(thumb.tipPosition, finger2.tipPosition);
+    }, 0) / fingers.length;
+    if (distanceTotal < 25) {
+      pinchTimes += 1;
+      if (pinchTimes > 10) {
+        return true;
+      }
+    } else {
+      pinchTimes = 0;
+    }
+    return false;
   }
 
   var playing = false;
   var sound = {},
     soundId;
 
-  function play() {
+  function play(id) {
     var el = elements[Math.floor(numElements / 2)];
-    var id = $('[data-index=' + el.i + ']')[0].id;
+    id = id ? id : $('[data-index=' + el.i + ']')[0].id;
     var name = $('[data-index=' + el.i + ']').data('name');
     $('.tracktitle').html(name);
     console.log(name);
     console.log(soundId, id);
+
+    $('.twitter-share-button a').attr('href', 'https://twitter.com/share?url=https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/' + id + '&amp;color=ff6600&amp;auto_play=false&amp;show_artwork=true');
     if (soundId == id && playing) {
       console.log('pause');
       sound.stop();
@@ -273,6 +292,11 @@ define(function(require, exports, module) {
       sound.stop();
       SC.stream("/tracks/" + id, function(s) {
         sound = s;
+        sound._onfinish(function() {
+          var currIndex = $('#' + id).data('index');
+
+          play($('[data-index=' + currIndex + 1 + ']')[0].id);
+        });
         soundId = id;
         s.play();
       });
@@ -283,7 +307,16 @@ define(function(require, exports, module) {
 
       SC.stream("/tracks/" + id, function(s) {
         sound = s;
+        console.log(s);
         soundId = id;
+        sound._whileplaying(function(d) {
+          console.log(d);
+        });
+        sound._onfinish(function() {
+          var currIndex = $('#' + id).data('index');
+
+          play($('[data-index=' + currIndex + 1 + ']')[0].id);
+        });
         s.play();
       });
       $('.pause').html('<i class="fa fa-pause"></i>');
@@ -295,28 +328,27 @@ define(function(require, exports, module) {
   var controllerOptions = {
     enableGestures: true
   };
-  var scrollNextThrottled = _.throttle(scrollNext, 1500);
-  var pullOutThrottled = _.throttle(pullOut, 1500);
-  var playThrottled = _.throttle(play, 2000);
+  var scrollNextThrottled = _.throttle(scrollNext, 500);
+  var pullOutThrottled = _.throttle(pullOut, 1600);
+  var playThrottled = _.throttle(play, 1000);
   var pinching = false;
   Leap.loop(controllerOptions, function(frame) {
     // Body of callback function
     // Display Gesture object data
-    if (frame.gestures.length > 0) {
+    var isP = isPinch(frame.fingers);
+    if (!isP && frame.gestures.length > 0) {
       for (var i = 0, l = frame.gestures.length; i < l; i++) {
         var gesture = frame.gestures[i];
         if (gesture.type === 'swipe') {
           scrollNextThrottled(gesture);
         } else if (gesture.type === 'screenTap') {
-          playThrottled();
+          //playThrottled();
         }
         /*else if (gesture.type === 'keyTap') {
           pullOutThrottled(gesture);
         }*/
       }
-    }
-
-    if (!pinching && isPinch(frame.fingers)) {
+    } else if (!pinching && isP) {
       pinching = true;
       pullOutThrottled();
     } else if (!isPinch(frame.fingers)) {
